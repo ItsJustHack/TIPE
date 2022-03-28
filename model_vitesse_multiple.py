@@ -26,6 +26,9 @@ class Voiture:
         if (self.vitesse < VITESSE_MAX - 1):
             self.vitesse += 1
 
+    def get_vitesse(self):
+        return self.vitesse
+
 class Case: 
     def __init__(self, y, x, densite = 0):
         self.densite = densite
@@ -67,11 +70,11 @@ class Route :
     
     def avance_direction(self, voiture, case):
         if voiture.destination_ligne == case.y:
-            if case.x + 1 == self.nbr_colonne:
+            if voiture.vitesse + case.x >= self.nbr_colonne:
                 self.arrive += 1
                 case.voiture.remove(voiture)
-                return ;
-            self.avance_voiture( case, voiture, self.route[case.y][case.x+1])
+                return;
+            self.avance_voiture( case, voiture, self.route[case.y][case.x+voiture.vitesse ])
         elif voiture.destination_ligne < case.y:
             self.avance_voiture(case, voiture, self.route[case.y - 1][case.x])
         else :
@@ -83,6 +86,7 @@ class Route :
             for j in range(self.nbr_colonne):
                 case = self.route[self.nbr_ligne - i - 1][self.nbr_colonne - j - 1]
                 for voiture in case.voiture:
+                    voiture.ajoute_vitesse()
                     self.avance_direction(voiture, case)
 
     def check_tous_arrive(self):
