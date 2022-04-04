@@ -1,8 +1,10 @@
 """Implémentation du modèle de Nagel-Schreckenberg"""
 
-VITESSE_MAX = 5
-MAX_DENSITE = 1 
+VITESSE_MAX = 1
+MAX_DENSITE = 20
 
+import matplotlib.pyplot as plt
+import numpy as np
 from random import randint
 
 def bool_aleatoire():
@@ -54,6 +56,9 @@ class Route :
         self.route = [[Case(j,i, randint(0, MAX_DENSITE)) for i in range(nbr_colonne) ] for j in range(nbr_ligne)]
         self.arrive = 0
         self.tour = 0
+        self.voiture_total = 0
+        self.affiches_tour = []
+        self.affiche_densite_total_tab = []
         self.ajoute_voiture_case()
         
     def ajoute_voiture_case(self):
@@ -61,12 +66,19 @@ class Route :
             for case in ligne: 
                 for _ in range(case.densite):
                     case.ajoute_voiture(self.nbr_ligne, self.nbr_colonne)
+                    self.voiture_total += 1
 
     def avance_voiture(self, case, voiture1, case_suivante): 
         case_suivante.voiture.append(voiture1)
         case_suivante.ajoute_densite()
         case.voiture.remove(voiture1)
         case.retire_densite()
+
+    def add_affiche_tour(self):
+        pass
+
+    def animate(self, i): 
+        return self.affiches_tour[i]
     
     def avance_direction(self, voiture, case):
         if voiture.destination_ligne == case.y:
@@ -89,12 +101,12 @@ class Route :
                     voiture.ajoute_vitesse()
                     self.avance_direction(voiture, case)
 
-    def check_tous_arrive(self):
-        for ligne in self.route:
-            for case in ligne: 
-                if case.voiture != []:
-                    return False
-        return True 
+        self.affiche_densite_total()
+    def check_tous_arrive(self): 
+        return self.arrive == self.voiture_total 
+
+    def affiche_densite_total(self):
+        self.affiche_densite_total_tab.append(self.voiture_total - self.arrive)
 
 
 
@@ -106,6 +118,11 @@ def main(nbr_ligne, nbr_colonne):
         #route1.jouer_tour()
 
     print(route1.arrive,"voitures arrivées en", route1.tour, "tours")
+    x = [i for i in range(route1.tour)]
+    y = route1.affiche_densite_total_tab
+    plt.plot(x, y)
+    plt.show()
+
 
 
 
