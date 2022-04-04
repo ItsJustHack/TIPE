@@ -1,11 +1,12 @@
 """Implémentation du modèle de Nagel-Schreckenberg"""
 
-VITESSE_MAX = 1
-MAX_DENSITE = 20
+VITESSE_MAX = 3
+MAX_DENSITE = 2
 
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
+from random import randrange
 
 def bool_aleatoire():
     temp = randint(0,1)
@@ -25,8 +26,16 @@ class Voiture:
 
 
     def ajoute_vitesse(self):
-        if (self.vitesse < VITESSE_MAX - 1):
+        if (self.vitesse < VITESSE_MAX):
             self.vitesse += 1
+
+    def ajoute_perturbation(self, proba, action):
+        if randint(0, 100) <  proba: 
+            action()
+        
+    def ralentir(self):
+        if self.vitesse > 0:
+            self.vitesse -= 1
 
     def get_vitesse(self):
         return self.vitesse
@@ -99,6 +108,8 @@ class Route :
                 case = self.route[self.nbr_ligne - i - 1][self.nbr_colonne - j - 1]
                 for voiture in case.voiture:
                     voiture.ajoute_vitesse()
+                    voiture.ajoute_perturbation(60, voiture.ralentir)
+                    #voiture.ajoute_perturbation(case.densite * 10, voiture.ralentir)
                     self.avance_direction(voiture, case)
 
         self.affiche_densite_total()
@@ -114,6 +125,7 @@ def main(nbr_ligne, nbr_colonne):
     route1 = Route(nbr_ligne, nbr_colonne)
     while not route1.check_tous_arrive():
         route1.jouer_tour()
+        print(route1.arrive)
         #while(not route1.check_tous_arrive()):
         #route1.jouer_tour()
 
