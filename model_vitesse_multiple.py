@@ -1,7 +1,7 @@
 """Implémentation du modèle de Nagel-Schreckenberg"""
 
 VITESSE_MAX = 3
-MAX_DENSITE = 50
+MAX_DENSITE = 200 
 
 from animation import animate
 import matplotlib.pyplot as plt
@@ -49,7 +49,6 @@ class Case:
 
     def ajoute_voiture(self, nbr_ligne, nbr_colonne):
         self.voiture.append(Voiture(nbr_ligne, nbr_colonne))
-        self.densite += 1
 
     def ajoute_densite(self):
         self.densite += 1
@@ -95,6 +94,7 @@ class Route :
             if voiture.vitesse + case.x >= self.nbr_colonne:
                 self.arrive += 1
                 case.voiture.remove(voiture)
+                case.retire_densite()
                 return;
             self.avance_voiture( case, voiture, self.route[case.y][case.x+voiture.vitesse ])
         elif voiture.destination_ligne < case.y:
@@ -124,6 +124,7 @@ class Route :
                     #voiture.ajoute_perturbation(case.densite * 10, voiture.ralentir)
                     self.avance_direction(voiture, case)
         print(self.route[9][0].densite)
+        print(len(self.route[9][0].voiture))
 
 
 
@@ -149,4 +150,4 @@ def main(nbr_ligne, nbr_colonne):
     #print(len(route1.densite_par_tour))
     animate(nbr_ligne, nbr_colonne, route1.densite_par_tour)
 
-main(10, 10)
+main(30, 30)
