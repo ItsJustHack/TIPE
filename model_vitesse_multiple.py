@@ -1,8 +1,9 @@
 """Implémentation du modèle de Nagel-Schreckenberg"""
 
 VITESSE_MAX = 3
-MAX_DENSITE = 2
+MAX_DENSITE = 50
 
+from animation import animate
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
@@ -11,7 +12,6 @@ from random import randrange
 def bool_aleatoire():
     temp = randint(0,1)
     return 0 if temp == 0 else 1
-
 
 class Voiture: 
     #Définition de mon objet
@@ -69,6 +69,7 @@ class Route :
         self.affiches_tour = []
         self.affiche_densite_total_tab = []
         self.ajoute_voiture_case()
+        self.densite_par_tour = [self.creer_tableau_densite()]
         
     def ajoute_voiture_case(self):
         for ligne in self.route:
@@ -100,9 +101,20 @@ class Route :
             self.avance_voiture(case, voiture, self.route[case.y - 1][case.x])
         else :
             self.avance_voiture(case, voiture, self.route[case.y + 1][case.x])
+
+    def creer_tableau_densite(self):
+        tab = []
+        for i, ligne in enumerate(self.route):
+            tab.append([])
+            for case in ligne: 
+                tab[i].append(case.densite)
+        return tab
+                
+                
         
     def jouer_tour(self):
         self.tour += 1
+        self.densite_par_tour.append(self.creer_tableau_densite())
         for i in range(self.nbr_ligne):
             for j in range(self.nbr_colonne):
                 case = self.route[self.nbr_ligne - i - 1][self.nbr_colonne - j - 1]
@@ -111,31 +123,30 @@ class Route :
                     voiture.ajoute_perturbation(60, voiture.ralentir)
                     #voiture.ajoute_perturbation(case.densite * 10, voiture.ralentir)
                     self.avance_direction(voiture, case)
+        print(self.route[9][0].densite)
+
+
 
         self.affiche_densite_total()
+
     def check_tous_arrive(self): 
         return self.arrive == self.voiture_total 
 
     def affiche_densite_total(self):
         self.affiche_densite_total_tab.append(self.voiture_total - self.arrive)
 
-
-
 def main(nbr_ligne, nbr_colonne):
     route1 = Route(nbr_ligne, nbr_colonne)
     while not route1.check_tous_arrive():
         route1.jouer_tour()
-        print(route1.arrive)
-        #while(not route1.check_tous_arrive()):
-        #route1.jouer_tour()
 
     print(route1.arrive,"voitures arrivées en", route1.tour, "tours")
     x = [i for i in range(route1.tour)]
     y = route1.affiche_densite_total_tab
     plt.plot(x, y)
     plt.show()
+    #print(route1.densite_par_tour)
+    #print(len(route1.densite_par_tour))
+    animate(nbr_ligne, nbr_colonne, route1.densite_par_tour)
 
-
-
-
-main(100, 100)
+main(10, 10)
