@@ -1,7 +1,8 @@
 """Implémentation du modèle de Nagel-Schreckenberg"""
 
-VITESSE_MAX = 3
+VITESSE_MAX = 2
 MAX_DENSITE = 200 
+DENSITE_ACCIDENT = 100
 
 from animation import animate
 import matplotlib.pyplot as plt
@@ -47,6 +48,15 @@ class Case:
         self.y = y
         self.voiture = [] 
 
+    def ajoute_perturbation(self, proba, action):
+        if randint(0, 100) <  proba: 
+            action()
+
+    def accident(self):
+        if self.densite > DENSITE_ACCIDENT:
+            for voiture in self.voiture:
+                voiture.vitesse -= 1
+
     def ajoute_voiture(self, nbr_ligne, nbr_colonne):
         self.voiture.append(Voiture(nbr_ligne, nbr_colonne))
 
@@ -82,25 +92,44 @@ class Route :
         case_suivante.ajoute_densite()
         case.voiture.remove(voiture1)
         case.retire_densite()
-
-    def add_affiche_tour(self):
-        pass
-
-    def animate(self, i): 
-        return self.affiches_tour[i]
     
+    def chemin_opti(self, liste_case):
+        meilleur_case = liste_case[0]
+        for i in range(1,len(liste_case)): 
+            if liste_case[i].densite < meilleur_case.densite: 
+                meilleur_case = liste_case[i]
+        return meilleur_case
+            
+    """A fixer"""
     def avance_direction(self, voiture, case):
-        if voiture.destination_ligne == case.y:
-            if voiture.vitesse + case.x >= self.nbr_colonne:
+        cases_possibles = []
+        #if voiture.destination_ligne == case.y:
+        if case.x == self.nbr_colonne - 1: 
+            if voiture.destination_ligne == case.y:
                 self.arrive += 1
                 case.voiture.remove(voiture)
                 case.retire_densite()
                 return;
-            self.avance_voiture( case, voiture, self.route[case.y][case.x+voiture.vitesse ])
-        elif voiture.destination_ligne < case.y:
-            self.avance_voiture(case, voiture, self.route[case.y - 1][case.x])
+        elif voiture.vitesse + case.x >= self.nbr_colonne:
+            if voiture.destination_ligne == case.y:
+                self.arrive += 1
+                case.voiture.remove(voiture)
+                case.retire_densite()
+                return;
+            else :
+                cases_possibles.append(self.route[case.y][self.nbr_colonne - 1])
         else :
-            self.avance_voiture(case, voiture, self.route[case.y + 1][case.x])
+            cases_possibles.append(self.route[case.y][case.x+voiture.vitesse ])
+            #self.avance_voiture( case, voiture, self.route[case.y][case.x+voiture.vitesse ])
+        if voiture.destination_ligne < case.y:
+            cases_possibles.append(self.route[case.y - 1][case.x])
+            #self.avance_voiture(case, voiture, self.route[case.y - 1][case.x])
+        elif voiture.destination_ligne > case.y:
+            cases_possibles.append(self.route[case.y + 1][case.x])
+            #self.avance_voiture(case, voiture, self.route[case.y + 1][case.x])
+        #print(len(cases_possibles))
+        meilleur_case = self.chemin_opti(cases_possibles)
+        self.avance_voiture(case, voiture, meilleur_case)
 
     def creer_tableau_densite(self):
         tab = []
@@ -118,17 +147,16 @@ class Route :
         for i in range(self.nbr_ligne):
             for j in range(self.nbr_colonne):
                 case = self.route[self.nbr_ligne - i - 1][self.nbr_colonne - j - 1]
+                case.ajoute_perturbation(30, case.accident)
                 for voiture in case.voiture:
                     voiture.ajoute_vitesse()
-                    voiture.ajoute_perturbation(60, voiture.ralentir)
-                    #voiture.ajoute_perturbation(case.densite * 10, voiture.ralentir)
+                    proba = (case.densite*100)//MAX_DENSITE
+                    voiture.ajoute_perturbation(proba, voiture.ralentir)
+                    
                     self.avance_direction(voiture, case)
-        print(self.route[9][0].densite)
-        print(len(self.route[9][0].voiture))
-
-
-
         self.affiche_densite_total()
+        print(self.route[19][19].densite)
+        print(self.voiture_total - self.arrive)
 
     def check_tous_arrive(self): 
         return self.arrive == self.voiture_total 
@@ -142,12 +170,12 @@ def main(nbr_ligne, nbr_colonne):
         route1.jouer_tour()
 
     print(route1.arrive,"voitures arrivées en", route1.tour, "tours")
+    """Affichage du plot"""
     x = [i for i in range(route1.tour)]
     y = route1.affiche_densite_total_tab
     plt.plot(x, y)
     plt.show()
-    #print(route1.densite_par_tour)
-    #print(len(route1.densite_par_tour))
+    
     animate(nbr_ligne, nbr_colonne, route1.densite_par_tour)
 
-main(30, 30)
+main(20, 20)

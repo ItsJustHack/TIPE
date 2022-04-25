@@ -4,7 +4,7 @@ import time
 HAUTEUR = 600 
 LONGUEUR = 800
 COULEUR = "black"
-INTERVALLE = 0.3
+INTERVALLE = 0.1
 
 """Ce fichier a pour but d'animer les densités des 
 cases au cours du temps"""
@@ -34,7 +34,8 @@ def animate_frame(densite, screen, nbr_lignes, nbr_colonnes):
     for i, ligne in enumerate(densite) : 
         for j, case in enumerate(ligne):
             rect_actuel = pygame.Rect(j * (LONGUEUR / nbr_colonnes), i * (HAUTEUR / nbr_lignes), LONGUEUR / nbr_colonnes, HAUTEUR / nbr_lignes)
-            pygame.draw.rect(screen, (0, 255 - case, 255), rect_actuel)
+            couleur = 255 - case if 255 - case > 0 else 255
+            pygame.draw.rect(screen, (0, couleur, 255), rect_actuel)
 
 def animate(nbr_lignes, nbr_colonnes, densite):
     screen = init_screen() 
