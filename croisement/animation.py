@@ -32,7 +32,6 @@ def draw_routes(nbr_lignes, nbr_colonnes, screen):
     """fonction pygame"""
     for i in range(nbr_lignes // 2 ):
         pygame.draw.line(screen, COULEUR_ROUTE, (0, 2*i*(HAUTEUR / nbr_lignes)), (LONGUEUR, 2*i*(HAUTEUR / nbr_lignes)), width=1)
-
     for j in range(nbr_colonnes // 2):
         pygame.draw.line(screen, COULEUR_ROUTE, (2*j * (LONGUEUR / nbr_colonnes), 0), (2*j * (LONGUEUR / nbr_colonnes), HAUTEUR), width=1)
 
@@ -45,7 +44,14 @@ def animate_frame(densite, screen, nbr_lignes, nbr_colonnes):
         for j, case in enumerate(ligne):
             rect_actuel = pygame.Rect(j * (LONGUEUR / nbr_colonnes), i * (HAUTEUR / nbr_lignes), LONGUEUR / nbr_colonnes, HAUTEUR / nbr_lignes)
             couleur = 255 - case if 255 - case > 0 else 0
-            pygame.draw.rect(screen, (0, couleur, 255), rect_actuel)
+            if (j%2 == 0 and i%2 == 0): 
+                pygame.draw.rect(screen, (couleur, couleur, 255), rect_actuel)
+            elif(j%2 == 0 and i%2 == 1): 
+                pygame.draw.rect(screen, (couleur, 0, 255), rect_actuel)
+            elif(j%2 == 1 and i%2 == 1): 
+                pygame.draw.rect(screen, (couleur, 255, couleur), rect_actuel)
+            else: 
+                pygame.draw.rect(screen, (0, couleur, 0), rect_actuel)
 
 
 def animate(nbr_lignes, nbr_colonnes, densite):
