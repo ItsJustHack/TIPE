@@ -5,6 +5,7 @@ class Voiture:
     #Définition de mon objet
     def __init__(self, nbr_ligne, nbr_colonne):
         self.vitesse = 1
+        self.prochain_mouvements = []
 
         def destination_y():
             return randint(0, nbr_ligne-1)

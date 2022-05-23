@@ -1,4 +1,5 @@
 from case import Case
+from case import Direction
 from random import randint 
 
 MAX_DENSITE = 200
@@ -16,6 +17,7 @@ class Route :
         self.affiche_densite_total_tab = []
         self.ajoute_voiture_case()
         self.densite_par_tour = [self.creer_tableau_densite()]
+        self.prochain_mouvements = []
         
     def ajoute_voiture_case(self):
         for ligne in self.route:
@@ -41,13 +43,108 @@ class Route :
         return meilleur_case
             
     """A fixer"""
-    
-    #def avance_direction(self, voiture, case): 
-    #    up_or_down = case.direction_possible[0]
-    #    left_or_right = case.direction_possible[1]
-    #    if voiture.destination_x 
-    
 
+    def trouve_case_suivante(self, case, direction):
+        if direction == Direction.HAUT:
+            return self.route[case.y - 1][case.x]
+        elif direction == Direction.BAS: 
+            return self.route[case.y + 1][case.x]
+        elif direction == Direction.DROITE: 
+            return self.route[case.y][case.x + 1]
+        else: 
+            return self.route[case.y][case.x - 1]
+
+    def creer_cycle(self, voiture, case, direction): #Direction designe haut ou bas
+        if direction == Direction.HAUT: 
+            if Direction.HAUT in case.direction_possible:
+                voiture.append(Direction.HAUT)
+                case_suivante = self.trouve_case_suivante(case, Direction.HAUT)
+                voiture.append(case_suivante.direction_possible[1])
+            else: 
+                print("Ajout impossible car la direction du cycle est impossible")
+        elif direction == Direction.BAS: 
+            if Direction.HAUT in case.direction_possible:
+                voiture.append(Direction.BAS)
+                case_suivante = self.trouve_case_suivante(case, Direction.BAS)
+                voiture.append(case_suivante.direction_possible[1])
+            else: 
+                print("Ajout impossible car la direction du cycle est impossible")
+        else: 
+            print("La direction donnée en argument est invalide")
+
+    def cycle_possible(self, case, direction): #Direction désigne haut ou bas
+        if case.y != self.nbr_ligne - 1 and case.y != 0:
+            return True 
+        else: 
+            if case.y == self.nbr_ligne - 1: 
+                return direction == Direction.HAUT and Direction.HAUT in case.direction_possible
+            elif case.y == 0: 
+                return direction == Direction.BAS and Direction.BAS in case.direction_possible
+            else: 
+                print("wtf")
+                
+                    
+                
+
+    def une_seule_direction_possible(self, case):
+        return (case.direction_possible[0] != Direction.NONE and case.direction_possible[1] == Direction.NONE) or (case.direction_possible[0] == Direction.NONE and case.direction_possible[1] != Direction.NONE)
+
+    def renvoie_direction_non_nulle(self, case):
+        if case.direction_possible[0] != Direction.NONE: 
+            return case.direction_possible[0]
+        return case.direction_possible[1]
+        
+    def avance_direction(self, voiture, case): 
+        # ajouter un cas si une des deux directions est nulle
+        up_or_down = case.direction_possible[0] #Stockage des possibles directions
+        left_or_right = case.direction_possible[1]
+        if len(voiture.prochain_mouvements) != 0: 
+            next_move = voiture.prochain_mouvements[0]
+            assert(next_move in case.direction_possible)
+            voiture.prochain_mouvements.remove(next_move)
+            self.avance_voiture(case, voiture, self.trouve_case_suivante(case, next_move))
+        else: 
+            if voiture.destination_ligne == case.y and voiture.destination_colonne < case.x and Direction.GAUCHE in case.direction_possible: 
+                return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.GAUCHE))
+            elif voiture.destination_ligne == case.y and voiture.destination_colonne > case.x and Direction.DROITE in case.direction_possible: 
+                return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.DROITE))
+            elif voiture.destination_colonne == case.x and voiture.destination_ligne < case.y and Direction.HAUT in case.direction_possible: 
+                return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.HAUT))
+            elif voiture.destination_colonne == case.x and voiture.destination_ligne > case.y and Direction.BAS in case.direction_possible: 
+                return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.BAS))
+            else: #On est pas dans une situation évidente ou l'objectif est sur la voie
+                #On cherche d'abord à être sur une voie pour avoir l'objectif au dessus ou en bas 
+                if voiture.destination_ligne < case.y and up_or_down == Direction.HAUT: #Si l'on est sur une case qui permet de rejoindre de façon directe en remontant on le prend 
+                    print(voiture.destination_ligne, voiture.destination_colonne)
+                    print("Longueur de ma liste : ", len(self.route[voiture.destination_ligne][voiture.destination_colonne].direction_possible))
+                    if case.x < voiture.destination_colonne and self.route[voiture.destination_ligne][voiture.destination_colonne].direction_possible[1] == Direction.DROITE:
+                        return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.HAUT))
+                    if case.x > voiture.destination_colonne and self.route[voiture.destination_ligne][voiture.destination_colonne].direction_possible[1] == Direction.GAUCHE:
+                        return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.GAUCHE))
+                if voiture.destination_colonne < case.x + 1 and left_or_right == Direction.DROITE: 
+                    return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.DROITE))
+                if voiture.destination_colonne > case.x - 1 and left_or_right == Direction.GAUCHE: 
+                    return self.avance_voiture(case, voiture, self.trouve_case_suivante(case, Direction.GAUCHE))
+                # On doit faire un cycle
+                if voiture.destination_ligne <= case.y:
+                    if self.cycle_possible(case, Direction.BAS):
+                        return self.creer_cycle(voiture, case, Direction.BAS)
+                    if self.une_seule_direction_possible(case): # Cas ou un cycle n'est pas possible donc le cas normalement où il n'y a qu'une direction possible
+                        return self.renvoie_direction_non_nulle(case)
+                    else: 
+                        print("Pas normal + je sais pas ce qui ce passe")
+                        
+                if voiture.destination_ligne > case.y:
+                    if self.cycle_possible(case, Direction.HAUT):
+                        return self.creer_cycle(voiture, case, Direction.HAUT)
+                    if self.une_seule_direction_possible(case): # Cas ou un cycle n'est pas possible donc le cas normalement où il n'y a qu'une direction possible
+                        return self.renvoie_direction_non_nulle(case)
+                    else:
+                        print("Pas normal + je sais pas ce qui ce passe")
+                pass #Créer un cycle pour pouvoir atteindre la bonne voie
+
+
+                """
     def avance_direction(self, voiture, case):
         cases_possibles = []
         #if voiture.destination_ligne == case.y:
@@ -81,6 +178,7 @@ class Route :
         #print(len(cases_possibles))
         meilleur_case = self.chemin_opti(cases_possibles)
         self.avance_voiture(case, voiture, meilleur_case)
+        """
 
     def creer_tableau_densite(self):
         tab = []

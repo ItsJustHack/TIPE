@@ -25,36 +25,50 @@ class Case:
         return self.x == 0 or self.x == self.nbr_colonne - 1 or self.y == 0 or self.y == self.nbr_ligne - 1
 
     def direction_possible_case(self):
+        compteur = 0
         if not self.case_bord():
             if self.y % 2 == 0: 
                 self.direction_possible.append(Direction.DROITE)
+                compteur += 1
             else: 
                 self.direction_possible.append(Direction.GAUCHE)
+                compteur += 1
             if self.x % 2 == 0: 
-                self.direction_possible.append(Direction.HAUT)
-            else: 
                 self.direction_possible.append(Direction.BAS)
+                compteur += 1
+            else: 
+                self.direction_possible.append(Direction.HAUT)
+                compteur += 1
         else: 
             if self.y == 0: 
-                if self.x % 2 == 0: 
-                    self.direction_possible.append(Direction.NONE)
-                else: 
-                    self.direction_possible.append(Direction.BAS)
-            elif self.y == self.nbr_colonne - 1: 
                 if self.x % 2 == 1: 
                     self.direction_possible.append(Direction.NONE)
+                    compteur += 1
+                else: 
+                    self.direction_possible.append(Direction.BAS)
+                    compteur += 1
+            if self.y == self.nbr_ligne - 1: 
+                if self.x % 2 == 0: 
+                    self.direction_possible.append(Direction.NONE)
+                    compteur += 1
                 else: 
                     self.direction_possible.append(Direction.HAUT)
+                    compteur += 1
             if self.x == 0:
                 if self.y % 2 == 0:
                     self.direction_possible.append(Direction.NONE)
+                    compteur += 1
                 else: 
                     self.direction_possible.append(Direction.DROITE)
+                    compteur += 1
             if self.x == self.nbr_colonne - 1: 
                 if self.y % 2 == 1: 
                     self.direction_possible.append(Direction.NONE)
+                    compteur += 1
                 else: 
                     self.direction_possible.append(Direction.GAUCHE)
+                    compteur += 1
+            print(compteur)
                     
 
     def accident(self):
