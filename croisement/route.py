@@ -251,15 +251,15 @@ class Route :
                 for voiture in case.voiture:
                     voiture.ajoute_vitesse()
                     proba = (case.densite*100)//MAX_DENSITE
-                    #voiture.ajoute_perturbation(proba, voiture.ralentir)
+                    voiture.ajoute_perturbation(proba, voiture.ralentir)
                     
                     self.avance_direction(voiture, case)
                     #print(voiture.vitesse)
                 print("Nombre de voiture restante pour l'instant : ", self.voiture_total - self.arrive)
-                print("Nombre de voiture total : ", self.voiture_total)
+                #print("Nombre de voiture total : ", self.voiture_total)
         self.affiche_densite_total()
         #print(self.route[19][19].densite)
-        print(self.voiture_total - self.arrive)
+        #print(self.voiture_total - self.arrive)
 
     def check_tous_arrive(self): 
         return self.arrive == self.voiture_total 

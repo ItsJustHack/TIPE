@@ -9,19 +9,21 @@ DENSITE_ACCIDENT = 50
 
 from route import Route
 from animation import animate
+import matplotlib.pyplot as plt
 
 def main(nbr_ligne, nbr_colonne):
     route1 = Route(nbr_ligne, nbr_colonne)
     while not route1.check_tous_arrive():
         route1.jouer_tour()
+        #print(route1.route[0][9].densite)
 
 
     print(route1.arrive,"voitures arrivées en", route1.tour, "tours")
     """Affichage du plot"""
-    #x = [i for i in range(route1.tour)]
-    #y = route1.affiche_densite_total_tab
-    #plt.plot(x, y)
-    #plt.show()
+    x = [i for i in range(route1.tour)]
+    y = route1.affiche_densite_total_tab
+    plt.plot(x, y)
+    plt.show()
     """
     for route in route1.route: 
         for case in route: 
