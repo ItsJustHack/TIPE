@@ -15,6 +15,7 @@ class Case:
         self.direction_possible = []
         self.voiture = [] 
         self.arrete = False #Tous les feux sont aux verts au début
+        print("Case : ", x, y)
         self.direction_possible_case()
     
     def ajoute_perturbation(self, proba, action):
@@ -24,22 +25,72 @@ class Case:
     def case_bord(self):
         return self.x == 0 or self.x == self.nbr_colonne - 1 or self.y == 0 or self.y == self.nbr_ligne - 1
 
+    def case_bord_gauche(self):
+        return self.x == 0
+
+    def case_bord_droite(self):
+        return self.x == self.nbr_colonne - 1
+
+    def case_bord_haut(self):
+        return self.y == 0
+
+    def case_bord_bas(self):
+        return self.y == self.nbr_ligne - 1
+    
+
     def direction_possible_case(self):
-        compteur = 0
         if not self.case_bord():
             if self.y % 2 == 0: 
                 self.direction_possible.append(Direction.DROITE)
-                compteur += 1
             else: 
                 self.direction_possible.append(Direction.GAUCHE)
-                compteur += 1
             if self.x % 2 == 0: 
                 self.direction_possible.append(Direction.BAS)
-                compteur += 1
             else: 
                 self.direction_possible.append(Direction.HAUT)
-                compteur += 1
         else: 
+            if self.case_bord_gauche():
+                if self.y % 2 == 0: 
+                    self.direction_possible.append(Direction.NONE)
+                else: 
+                    self.direction_possible.append(Direction.DROITE)
+                if self.y == self.nbr_ligne - 1:
+                    self.direction_possible.append(Direction.NONE)
+                else:
+                    self.direction_possible.append(Direction.BAS)
+            elif self.case_bord_droite():
+                if self.y % 2 == 0:
+                    self.direction_possible.append(Direction.GAUCHE)
+                else: 
+                    self.direction_possible.append(Direction.NONE)
+                if self.y == 0: #Cela suppose une grille de dimension paire
+                    self.direction_possible.append(Direction.NONE)
+                else:
+                    self.direction_possible.append(Direction.HAUT)
+            elif self.case_bord_haut():
+                if self.x == 0:
+                    self.direction_possible.append(Direction.NONE)
+                else:
+                    self.direction_possible.append(Direction.GAUCHE)
+                if self.x % 2 == 0:
+                    self.direction_possible.append(Direction.BAS)
+                else:
+                    self.direction_possible.append(Direction.NONE)
+            elif self.case_bord_bas():
+                if self.x == self.nbr_colonne - 1:
+                    self.direction_possible.append(Direction.NONE)
+                else:
+                    self.direction_possible.append(Direction.DROITE)
+                if self.x % 2 == 0:
+                    self.direction_possible.append(Direction.NONE)
+                else:
+                    self.direction_possible.append(Direction.HAUT)
+                
+                    
+                
+                    
+            """
+            print("Je suis dans le cas 2")
             if self.y == 0: 
                 if self.x % 2 == 1: 
                     self.direction_possible.append(Direction.NONE)
@@ -68,7 +119,8 @@ class Case:
                 else: 
                     self.direction_possible.append(Direction.GAUCHE)
                     compteur += 1
-            print(compteur)
+            """
+        #print(compteur)
                     
 
     def accident(self):

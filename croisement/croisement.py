@@ -4,7 +4,7 @@
 les interactions avec des feux"""
 
 VITESSE_MAX = 2
-MAX_DENSITE = 200
+MAX_DENSITE = 4
 DENSITE_ACCIDENT = 50
 
 from route import Route
@@ -22,9 +22,11 @@ def main(nbr_ligne, nbr_colonne):
     #y = route1.affiche_densite_total_tab
     #plt.plot(x, y)
     #plt.show()
+    """
     for route in route1.route: 
         for case in route: 
             print(case.direction_possible)
+    """
     
     animate(nbr_ligne, nbr_colonne, route1.densite_par_tour)
 
