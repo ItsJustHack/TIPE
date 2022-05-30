@@ -255,7 +255,7 @@ class Route :
                     
                     self.avance_direction(voiture, case)
                     #print(voiture.vitesse)
-                print("Nombre de voiture restante pour l'instant : ", self.voiture_total - self.arrive)
+        print("Nombre de voiture restante pour l'instant : ", self.voiture_total - self.arrive)
                 #print("Nombre de voiture total : ", self.voiture_total)
         self.affiche_densite_total()
         #print(self.route[19][19].densite)
